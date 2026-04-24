@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Courtroom Quiz">
+<meta name="description" content="Vocabulary quiz: In the Courtroom">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Courtroom Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --surface: #16162a;
+    --surface2: #1e1e38;
+    --accent: #c8a96e;
+    --accent2: #7c6fd6;
+    --green: #4ade80;
+    --red: #f87171;
+    --text: #f0ede8;
+    --muted: #8a8aaa;
+    --border: rgba(200,169,110,0.18);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* HOME */
+  #home {
+    background: var(--bg);
+      justify-content: flex-start;
+      padding: 1.5rem 1.25rem calc(2rem + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .home-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+  }
+  .home-gavel {
+    font-size: 64px;
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .home-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+  .home-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .hstat {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .hstat strong { display: block; font-size: 20px; color: var(--accent); font-weight: 500; margin-bottom: 2px; }
+  .btn-start {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: #0d0d1a;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn-start:active { transform: scale(0.97); opacity: 0.9; }
+  .control-card,
+  .materials-card {
+    width: 100%;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 0.9rem;
+  }
+  .control-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    flex: 1 1 96px;
+    min-width: 0;
+    padding: 10px 11px;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .chip.sel {
+    background: rgba(200,169,110,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .materials-actions {
+    display: grid;
+    gap: 8px;
+  }
+  .material-link {
+    display: block;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--surface2);
+    border: 0.5px solid rgba(200,169,110,0.14);
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-align: left;
+    line-height: 1.45;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .material-link span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .material-link:active {
+    transform: scale(0.98);
+    border-color: var(--accent);
+  }
+  .home-note {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    text-align: left;
+    margin: 0.1rem 0 1rem;
+  }
+
+  /* QUIZ */
+  #quiz { background: var(--bg); }
+  .quiz-top {
+    padding: 1rem 1.25rem 0.75rem;
+    flex-shrink: 0;
+  }
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .q-counter { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .score-row {
+    display: flex;
+    gap: 8px;
+  }
+  .sc-pill {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .sc-pill.ok { background: rgba(74,222,128,0.12); color: var(--green); }
+  .sc-pill.bad { background: rgba(248,113,113,0.12); color: var(--red); }
+  .sect-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(124,111,214,0.12);
+    color: var(--accent2);
+    margin-left: auto;
+  }
+
+  .quiz-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .type-badge {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .tb-mc { background: rgba(200,169,110,0.12); color: var(--accent); }
+  .tb-en { background: rgba(74,222,128,0.1); color: #86efac; }
+  .tb-pl { background: rgba(251,191,36,0.1); color: #fcd34d; }
+  .tb-fill { background: rgba(124,111,214,0.12); color: var(--accent2); }
+
+  .q-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .q-text {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .q-dir {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .opts {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .opt {
+    background: var(--surface);
+    border: 0.5px solid rgba(200,169,110,0.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1.4;
+    width: 100%;
+  }
+  .opt:active:not(:disabled) { transform: scale(0.98); }
+  .opt.correct { background: rgba(74,222,128,0.1); border-color: var(--green); color: #86efac; }
+  .opt.wrong { background: rgba(248,113,113,0.08); border-color: var(--red); color: #fca5a5; }
+  .opt.reveal { background: rgba(74,222,128,0.07); border-color: rgba(74,222,128,0.4); color: #86efac; }
+  .opt.hinted { opacity: 0.35; border-style: dashed; }
+  .opt:disabled { cursor: default; }
+
+  .fill-input {
+    width: 100%;
+    background: var(--surface);
+    border: 0.5px solid rgba(200,169,110,0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .fill-input:focus { border-color: var(--accent); }
+  .fill-input.correct { border-color: var(--green); background: rgba(74,222,128,0.07); color: #86efac; }
+  .fill-input.wrong { border-color: var(--red); background: rgba(248,113,113,0.07); color: #fca5a5; }
+
+  .feedback {
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: rgba(74,222,128,0.08); border: 0.5px solid rgba(74,222,128,0.3); color: #86efac; }
+  .feedback.bad { background: rgba(248,113,113,0.07); border: 0.5px solid rgba(248,113,113,0.3); color: #fca5a5; }
+  .feedback strong { color: var(--text); }
+  .feedback-note {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+  }
+  .hint-box {
+    display: none;
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    background: rgba(124,111,214,0.12);
+    border: 0.5px solid rgba(124,111,214,0.35);
+    color: #d4ccff;
+  }
+  .hint-box.show { display: block; }
+
+  .quiz-bottom {
+    padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
+    flex-shrink: 0;
+    background: var(--bg);
+    border-top: 0.5px solid var(--border);
+  }
+  .quiz-tools {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .btn-tool {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-tool:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .btn-check, .btn-next {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn-check { background: var(--accent); color: #0d0d1a; }
+  .btn-next { background: var(--surface2); color: var(--text); border: 0.5px solid var(--border); }
+  .btn-check:active, .btn-next:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* RESULTS */
+  #results { background: var(--bg); overflow-y: auto; }
+  .results-wrap {
+    padding: 2rem 1.25rem calc(2rem + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100%;
+  }
+  .trophy { font-size: 56px; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+  .res-score { font-family: 'Playfair Display', serif; font-size: 56px; color: var(--accent); margin-bottom: 4px; }
+  .res-pct { font-size: 14px; color: var(--muted); margin-bottom: 0.75rem; }
+  .res-grade { font-size: 20px; font-weight: 500; margin-bottom: 2rem; }
+  .grade-5 { color: var(--green); }
+  .grade-4 { color: #a3e635; }
+  .grade-3 { color: #fbbf24; }
+  .grade-2 { color: var(--red); }
+
+  .sect-results { width: 100%; margin-bottom: 1.5rem; }
+  .sect-title {
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 0 6px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .res-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 0.5px solid rgba(200,169,110,0.07);
+    gap: 10px;
+    font-size: 13px;
+  }
+  .res-q { color: var(--muted); flex: 1; }
+  .res-a { font-weight: 500; white-space: nowrap; font-size: 12px; }
+  .res-a.ok { color: var(--green); }
+  .res-a.bad { color: var(--red); }
+
+  .btn-retry {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #0d0d1a;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .btn-retry:active { transform: scale(0.98); }
+  .btn-home {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--muted);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .best-badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(200,169,110,0.12);
+    color: var(--accent);
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* install banner */
+  #install-banner {
+    display: none;
+    position: fixed;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    left: 1rem;
+    right: 1rem;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    z-index: 100;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  #install-banner.show { display: flex; }
+  #install-banner p { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+  #install-banner p span { color: var(--muted); font-size: 12px; }
+  .btn-install {
+    background: var(--accent);
+    color: #0d0d1a;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-dismiss { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="home-wrap">
+    <div class="home-gavel">⚖️</div>
+    <div class="home-title">Courtroom<br>Drill</div>
+    <div class="home-sub">Słówka, zdania, ABCD, podpowiedzi i automatyczne powtórki<br>pod kolokwium z materiałów PDF</div>
+    <div class="home-stats">
+      <div class="hstat"><strong id="total-items">0</strong>kart</div>
+      <div class="hstat"><strong id="best-score">—</strong>rekord</div>
+      <div class="hstat"><strong id="due-count">0</strong>powtórek</div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Preset</div>
+      <div class="chip-row">
+        <button class="chip sel" data-group="preset" data-value="exam" onclick="setSetting(this)">Egzamin</button>
+        <button class="chip" data-group="preset" data-value="learn" onclick="setSetting(this)">Nauka</button>
+        <button class="chip" data-group="preset" data-value="review" onclick="setSetting(this)">Powtórki</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Zakres</div>
+      <div class="chip-row">
+        <button class="chip sel" data-group="content" data-value="mix" onclick="setSetting(this)">Mix</button>
+        <button class="chip" data-group="content" data-value="words" onclick="setSetting(this)">Słowa</button>
+        <button class="chip" data-group="content" data-value="sentences" onclick="setSetting(this)">Zdania</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Kierunek tłumaczeń</div>
+      <div class="chip-row">
+        <button class="chip sel" data-group="direction" data-value="mix" onclick="setSetting(this)">Mix</button>
+        <button class="chip" data-group="direction" data-value="enpl" onclick="setSetting(this)">EN → PL</button>
+        <button class="chip" data-group="direction" data-value="plen" onclick="setSetting(this)">PL → EN</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Forma odpowiedzi</div>
+      <div class="chip-row">
+        <button class="chip sel" data-group="format" data-value="mix" onclick="setSetting(this)">Mix</button>
+        <button class="chip" data-group="format" data-value="mc" onclick="setSetting(this)">Więcej ABCD</button>
+        <button class="chip" data-group="format" data-value="typed" onclick="setSetting(this)">Wpisywanie</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Rotacja</div>
+      <div class="chip-row">
+        <button class="chip sel" data-group="order" data-value="random" onclick="setSetting(this)">Losowo</button>
+        <button class="chip" data-group="order" data-value="section" onclick="setSetting(this)">Sekcjami</button>
+        <button class="chip" data-group="order" data-value="hard" onclick="setSetting(this)">Trudne najpierw</button>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="control-label">Długość sesji</div>
+      <div class="chip-row">
+        <button class="chip" data-group="limit" data-value="15" onclick="setSetting(this)">15</button>
+        <button class="chip sel" data-group="limit" data-value="30" onclick="setSetting(this)">30</button>
+        <button class="chip" data-group="limit" data-value="all" onclick="setSetting(this)">Całość</button>
+      </div>
+    </div>
+    <div class="materials-card">
+      <div class="control-label">Materiały źródłowe</div>
+      <div class="materials-actions">
+        <a class="material-link" href="ENGLISH%20%20MATTERS%20%20%20%20nr_73%20%20%20%20%2011_12%20%20%202018%20%20%20%20%20%20IN%20the%20COURTROOM.pdf" target="_blank" rel="noopener">In the Courtroom<span>Słówka i dialogi z English Matters 73/2018</span></a>
+        <a class="material-link" href="RM_B2P_PC_3C_LanguageFocus1.pdf" target="_blank" rel="noopener">Language Focus 1<span>Dodatkowe ćwiczenia z even / hardly</span></a>
+      </div>
+    </div>
+    <div class="home-note" id="home-note">Błędne pytania wracają po kilku kartach, a tryb powtórek zbiera zaległe hasła z historii.</div>
+    <button class="btn-start" id="start-btn" onclick="startQuiz()">Rozpocznij sesję →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quiz">
+  <div class="quiz-top">
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+      <div class="q-counter" id="qctr">1/60</div>
+    </div>
+    <div class="score-row">
+      <div class="sc-pill ok">✓ <span id="sc">0</span></div>
+      <div class="sc-pill bad">✗ <span id="wr">0</span></div>
+      <div class="sect-pill" id="sect-pill">—</div>
+    </div>
+  </div>
+  <div class="quiz-body" id="qbody"></div>
+  <div class="quiz-bottom" id="qbottom"></div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="results">
+  <div class="results-wrap">
+    <div class="trophy" id="trophy">🏆</div>
+    <div class="res-score" id="res-score">0/60</div>
+    <div class="res-pct" id="res-pct">0% poprawnych</div>
+    <div class="res-grade" id="res-grade"></div>
+    <div class="best-badge" id="best-badge" style="display:none">🥇 Nowy rekord!</div>
+    <div class="sect-results" id="sect-results"></div>
+    <button class="btn-retry" onclick="retry()">Spróbuj ponownie</button>
+    <button class="btn-home" onclick="goHome()">← Strona główna</button>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <p>Dodaj do ekranu głównego<br><span>działa offline · bez przeglądarki</span></p>
+  <button class="btn-install" id="install-btn" onclick="installApp()">Dodaj</button>
+  <button class="btn-dismiss" onclick="dismissInstall()">×</button>
+</div>
+
+<script>/*
+const ALL_QUESTIONS = [
+  {s:'Violent Verbs',t:'mc',q:'To commit a crime means to…',o:['be a victim of crime','be a witness','carry out a crime','escape from prison'],a:2,e:'"to commit a crime" = popełnić przestępstwo.'},
+  {s:'Violent Verbs',t:'enpl',q:'to witness sth',a:'być świadkiem czegoś',e:'Example: "Did anybody witness the attack?"'},
+  {s:'Violent Verbs',t:'mc',q:'"The defendant ___ not guilty." Which verb fits?',o:['sentenced','acquitted','pleaded','deliberated'],a:2,e:'"to plead not guilty" = nie przyznać się do winy.'},
+  {s:'Violent Verbs',t:'enpl',q:'to acquit sb of all charges',a:'uniewinnić kogoś od wszystkich zarzutów',e:'"The judge acquitted him of all charges."'},
+  {s:'Violent Verbs',t:'plen',q:'zostać skazanym na 5 lat więzienia',a:'to be sentenced to 5 years in prison',e:'"She was sentenced to five years in prison."'},
+  {s:'Violent Verbs',t:'mc',q:'The jury ___ for several hours before reaching a verdict.',o:['committed','deliberated','struck','proved'],a:1,e:'"to deliberate" = obradować, naradzać się.'},
+  {s:'Violent Verbs',t:'enpl',q:'struck from the record',a:'usunięty z protokołu',e:'"That comment should be struck from the record."'},
+  {s:'Violent Verbs',t:'plen',q:'udowodnić winę',a:'to prove',e:'"We have to prove that his actions qualify as burglary."'},
+
+  {s:'Notable Nouns',t:'enpl',q:'trial',a:'proces',e:'"When will the trial begin?"'},
+  {s:'Notable Nouns',t:'enpl',q:'prosecution',a:'oskarżenie',e:'"The prosecution has a solid case."'},
+  {s:'Notable Nouns',t:'mc',q:'"Her testimony is hearsay." What does hearsay mean?',o:['concrete proof','secondhand unverified information','a confession','physical evidence'],a:1,e:'"hearsay" = plotka, pogłoska — informacja z drugiej ręki, nie bezpośrednia.'},
+  {s:'Notable Nouns',t:'enpl',q:'fate',a:'los',e:'"His fate lies in the jury\'s hands."'},
+  {s:'Notable Nouns',t:'plen',q:'zeznanie',a:'testimony',e:'A witness gives testimony in court.'},
+
+  {s:'Common Crimes',t:'enpl',q:'to be found guilty of sth',a:'zostać uznanym za winnego czegoś',e:'"He was found guilty of murder."'},
+  {s:'Common Crimes',t:'enpl',q:'shoplifting',a:'kradzież sklepowa',e:'"You are accused of shoplifting."'},
+  {s:'Common Crimes',t:'plen',q:'przemyt',a:'smuggling',e:'"They were found not guilty of smuggling."'},
+  {s:'Common Crimes',t:'enpl',q:'burglary',a:'włamanie',e:'"We have to prove that his actions qualify as burglary."'},
+  {s:'Common Crimes',t:'mc',q:'"She is ___ with kidnapping." Choose the correct verb.',o:['accused','charged','found','sentenced'],a:1,e:'"to be charged with sth" = zostać oskarżonym o coś. To standardowe sformułowanie prawne.'},
+
+  {s:'Phrasal Verbs & Crime',t:'enpl',q:'to apprehend sb',a:'aresztować kogoś',e:'"The police apprehended the thugs."'},
+  {s:'Phrasal Verbs & Crime',t:'enpl',q:'thug',a:'bandyta',e:'An informal word for a violent criminal.'},
+  {s:'Phrasal Verbs & Crime',t:'plen',q:'władze',a:'authorities',e:'"Authorities believe a gang broke into the jewellery store."'},
+  {s:'Phrasal Verbs & Crime',t:'mc',q:'Four inmates ___ of prison yesterday.',o:['broke into','broke out','tipped off','brought in'],a:1,e:'"to break out of prison" = uciec z więzienia. Uwaga: "break into" = włamać się DO.'},
+  {s:'Phrasal Verbs & Crime',t:'enpl',q:'anonymous',a:'anonimowy',e:'"An anonymous caller tipped off the police."'},
+  {s:'Phrasal Verbs & Crime',t:'plen',q:'dawać komuś cynk',a:'to tip off sb',e:'"An anonymous caller tipped off the police."'},
+  {s:'Phrasal Verbs & Crime',t:'mc',q:'He was speeding, but he was ___ with a warning.',o:['brought in','let off','mixed up','broken out'],a:1,e:'"to be let off with a warning" = zostać wypuszczonym z ostrzeżeniem.'},
+  {s:'Phrasal Verbs & Crime',t:'plen',q:'zadawać się z kimś (złym towarzystwem)',a:'to get mixed up with sb',e:'"She\'s a good kid who just got mixed up with a bad crowd."'},
+  {s:'Phrasal Verbs & Crime',t:'enpl',q:'suspect',a:'podejrzany',e:'"The police brought in two suspects for questioning."'},
+  {s:'Phrasal Verbs & Crime',t:'enpl',q:'to bring in sb',a:'zatrzymać kogoś',e:'"The police brought in two suspects for questioning."'},
+
+  {s:'Conversation 1',t:'enpl',q:'assailant',a:'napastnik, agresor',e:'"Can you identify the assailant from that night?"'},
+  {s:'Conversation 1',t:'enpl',q:'intent',a:'zamiar',e:'"Was it the assailant\'s intent to steal the wallet?"'},
+  {s:'Conversation 1',t:'enpl',q:'sustained',a:'podtrzymany',e:'Judge: "Sustained." = Zarzut przyjęty przez sędziego.'},
+  {s:'Conversation 1',t:'plen',q:'przysięga (w sądzie)',a:'oath',e:'"May I remind you that you\'re under oath?"'},
+  {s:'Conversation 1',t:'mc',q:'"Beyond a shadow of a ___" means without any doubt.',o:['reason','doubt','proof','verdict'],a:1,e:'"beyond a shadow of a doubt" = ponad wszelką wątpliwość.'},
+
+  {s:'Conversation 2',t:'enpl',q:'to get under way',a:'zaczynać, rozpoczynać',e:'"The trial is finally getting under way."'},
+  {s:'Conversation 2',t:'mc',q:'"The defendant stands charged with two ___ of murder."',o:['cases','charges','counts','suits'],a:2,e:'"count" (prawo) = zarzut, osobny czyn w akcie oskarżenia.'},
+  {s:'Conversation 2',t:'enpl',q:'prematurely',a:'przedwcześnie',e:'"Two souls whose lives were taken from them prematurely."'},
+  {s:'Conversation 2',t:'enpl',q:'in cold blood',a:'z zimną krwią',e:'"The defendant committed these crimes in cold blood."'},
+  {s:'Conversation 2',t:'enpl',q:'heinous',a:'potworny, ohydny',e:'"She is accused of a heinous crime."'},
+  {s:'Conversation 2',t:'plen',q:'nie mieć wcześniejszych konfliktów z prawem',a:'to have no previous run-ins with the law',e:'"She\'s had no previous run-ins with the law."'},
+  {s:'Conversation 2',t:'enpl',q:'to refrain from sth',a:'powstrzymać się od czegoś',e:'"You must refrain from communicating with one another."'},
+
+  {s:'People in a Courtroom',t:'enpl',q:'plaintiff',a:'powód/ka, strona pozywająca',e:'"The plaintiff believes she is owed damages."'},
+  {s:'People in a Courtroom',t:'mc',q:'"I think he\'ll ___ off." (= won\'t be punished)',o:['get','let','take','break'],a:0,e:'"to get off" = ujść na sucho, nie zostać ukaranym.'},
+  {s:'People in a Courtroom',t:'enpl',q:'wet behind the ears',a:'mieć mleko pod nosem',e:'"This prosecutor is a little wet behind the ears."'},
+  {s:'People in a Courtroom',t:'enpl',q:'to call to the stand',a:'wezwać kogoś na świadka',e:'"We have another witness to call to the stand."'},
+  {s:'People in a Courtroom',t:'enpl',q:'bailiff',a:'strażnik sądowy',e:'"The bailiff will escort the jury to their seats."'},
+
+  {s:'Punishments & Idioms',t:'plen',q:'przeprowadzić śledztwo',a:'to carry out an investigation',e:'"The police will need to carry out their investigation."'},
+  {s:'Punishments & Idioms',t:'enpl',q:'infamy',a:'niesława, zła sława',e:'"He won\'t get a fair trial because of his infamy."'},
+  {s:'Punishments & Idioms',t:'mc',q:'"I think he\'s ___ the death penalty."',o:['facing','carrying','taking','meeting'],a:0,e:'"to face sth" = mierzyć się z czymś, stanąć twarzą w twarz z czymś.'},
+  {s:'Punishments & Idioms',t:'fill',q:'Complete: "She pulled the ___ over everyone\'s eyes."',a:'wool',e:'"to pull the wool over sb\'s eyes" = mydlić komuś oczy.'},
+  {s:'Punishments & Idioms',t:'fill',q:'Complete: "No one can escape the long ___ of the law."',a:'arm',e:'"the long arm of the law" = długie ramię prawa.'},
+  {s:'Punishments & Idioms',t:'fill',q:'Complete: "They really threw the ___ at him!" (severe sentence)',a:'book',e:'"to throw the book at sb" = zasądzić najwyższy wymiar kary.'},
+  {s:'Punishments & Idioms',t:'enpl',q:'to do time',a:'odsiadywać wyrok w więzieniu',e:'"She\'s already done time."'},
+  {s:'Punishments & Idioms',t:'enpl',q:'to keep on the straight and narrow',a:'trzymać się z dala od kłopotów',e:'"Police have to keep people on the straight and narrow."'},
+
+  {s:'Legalese & Society',t:'enpl',q:'litigious',a:'lubiący się procesować',e:'"Americans are often considered litigious."'},
+  {s:'Legalese & Society',t:'plen',q:'pozwać kogoś',a:'to sue sb',e:'"Coffee too hot? Sue somebody!"'},
+  {s:'Legalese & Society',t:'enpl',q:'grievance',a:'żal, skarga',e:'"People seeking compensation for some kind of grievance."'},
+  {s:'Legalese & Society',t:'mc',q:'Germany ___ the cake with 123 lawsuits per 1,000 citizens.',o:['wins','takes','gets','holds'],a:1,e:'"to take the cake" = zajmować pierwsze miejsce, bić rekordy.'},
+  {s:'Legalese & Society',t:'enpl',q:'lucrative',a:'lukratywny, zyskowny',e:'"Being a lawyer can be quite lucrative."'},
+  {s:'Legalese & Society',t:'enpl',q:'per capita',a:'na głowę mieszkańca',e:'"The USA has the most lawyers per capita."'},
+  {s:'Legalese & Society',t:'enpl',q:'legalese',a:'terminologia prawnicza, żargon prawniczy',e:'Complex legal English is called legalese.'},
+  {s:'Legalese & Society',t:'enpl',q:'irksome',a:'męczący, denerwujący',e:'"These irksome expressions confuse even native speakers."'},
+  {s:'Legalese & Society',t:'enpl',q:'affidavit',a:'oświadczenie złożone pod przysięgą',e:'A written sworn statement used as evidence.'},
+  {s:'Legalese & Society',t:'enpl',q:'subpoena',a:'wezwanie do stawiennictwa pod groźbą kary',e:'A subpoena requires a person to appear in court.'},
+  {s:'Legalese & Society',t:'mc',q:'"Pro bono" means…',o:['for money','for the public good / free of charge','under oath','a court order'],a:1,e:'"pro bono" = dla dobra publicznego — praca prawnicza wykonywana bezpłatnie.'},
+  {s:'Legalese & Society',t:'enpl',q:'modus operandi',a:'sposób działania',e:'The criminal\'s modus operandi was always the same.'},
+  {s:'Legalese & Society',t:'enpl',q:'part and parcel',a:'nieodłączny element',e:'"Latin terms are part and parcel of any lawyer\'s day."'},
+  {s:'Legalese & Society',t:'enpl',q:'quid pro quo',a:'coś za coś, rewanż',e:'A quid pro quo = something given in exchange for something else.'},
+];
+
+let qs = [], cur = 0, score = 0, wrongs = 0, res = [], mode = 'all', answered = false;
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function setMode(btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  mode = btn.dataset.mode;
+}
+
+function filterQuestions() {
+  let pool = [...ALL_QUESTIONS];
+  if (mode === 'mc') pool = pool.filter(q => q.t === 'mc');
+  if (mode === 'trans') pool = pool.filter(q => q.t === 'enpl' || q.t === 'plen');
+  return shuffle(pool);
+}
+
+function startQuiz() {
+  qs = filterQuestions();
+  cur = 0; score = 0; wrongs = 0; res = []; answered = false;
+  showScreen('quiz');
+  render();
+}
+
+function retry() {
+  startQuiz();
+}
+
+function goHome() {
+  const best = localStorage.getItem('best_score');
+  document.getElementById('best-score').textContent = best ? best + '/60' : '—';
+  showScreen('home');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'results') document.getElementById(id).scrollTop = 0;
+}
+
+function updateTop() {
+  document.getElementById('prog').style.width = (cur / qs.length * 100) + '%';
+  document.getElementById('qctr').textContent = (cur + 1) + '/' + qs.length;
+  document.getElementById('sc').textContent = score;
+  document.getElementById('wr').textContent = wrongs;
+  document.getElementById('sect-pill').textContent = qs[cur]?.s || '';
+}
+
+const badgeHTML = {
+  mc: '<div class="type-badge tb-mc">Wybór wielokrotny</div>',
+  enpl: '<div class="type-badge tb-en">EN → PL</div>',
+  plen: '<div class="type-badge tb-pl">PL → EN</div>',
+  fill: '<div class="type-badge tb-fill">Uzupełnij lukę</div>',
+};
+
+function render() {
+  if (cur >= qs.length) { showResults(); return; }
+  answered = false;
+  const q = qs[cur];
+  updateTop();
+  const body = document.getElementById('qbody');
+  const bottom = document.getElementById('qbottom');
+
+  if (q.t === 'mc') {
+    body.innerHTML = `
+      ${badgeHTML.mc}
+      <div class="q-card"><div class="q-text">${q.q}</div></div>
+      <div class="opts">${q.o.map((o, i) => `<button class="opt" onclick="choose(${i})" id="o${i}">${o}</button>`).join('')}</div>
+      <div class="feedback" id="fb"></div>`;
+    bottom.innerHTML = `<button class="btn-next" id="nav-btn" onclick="nxt()" style="display:none">${cur < qs.length - 1 ? 'Następne pytanie →' : 'Zobacz wyniki →'}</button>`;
+  } else {
+    const dir = q.t === 'enpl' ? 'Wpisz polskie tłumaczenie:' : q.t === 'plen' ? 'Wpisz angielskie tłumaczenie:' : 'Wpisz brakujące słowo:';
+    body.innerHTML = `
+      ${badgeHTML[q.t]}
+      <div class="q-card"><div class="q-text" style="font-weight:500">${q.q}</div><div class="q-dir">${dir}</div></div>
+      <input type="text" class="fill-input" id="fi" placeholder="Twoja odpowiedź..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <div class="feedback" id="fb"></div>`;
+    bottom.innerHTML = `<button class="btn-check" id="nav-btn" onclick="chkFill()">Sprawdź</button>`;
+    setTimeout(() => { const f = document.getElementById('fi'); if (f) f.focus(); }, 100);
+    document.getElementById('fi').addEventListener('keydown', e => { if (e.key === 'Enter') chkFill(); });
+  }
+  body.scrollTop = 0;
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const q = qs[cur];
+  for (let j = 0; j < q.o.length; j++) {
+    const el = document.getElementById('o' + j);
+    el.disabled = true;
+    if (j === q.a) el.classList.add('reveal');
+    if (j === i && i !== q.a) el.classList.add('wrong');
+    if (j === i && i === q.a) { el.classList.remove('reveal'); el.classList.add('correct'); }
+  }
+  const ok = i === q.a;
+  if (ok) { score++; res.push({ s: q.s, q: q.q, ok: true, a: q.o[q.a] }); }
+  else { wrongs++; res.push({ s: q.s, q: q.q, ok: false, a: q.o[q.a] }); }
+  showFB(ok, q.o[q.a], q.e);
+  document.getElementById('sc').textContent = score;
+  document.getElementById('wr').textContent = wrongs;
+  document.getElementById('nav-btn').style.display = 'block';
+}
+
+function chkFill() {
+  if (answered) return;
+  answered = true;
+  const q = qs[cur];
+  const inp = document.getElementById('fi');
+  const val = inp.value.trim().toLowerCase();
+  const accept = q.a.toLowerCase().split('/').map(s => s.trim().replace(/[(),]/g, ''));
+  const ok = accept.some(acc => val === acc || val === acc.replace(/[(),]/g, ''));
+  inp.disabled = true;
+  inp.classList.add(ok ? 'correct' : 'wrong');
+  if (ok) { score++; res.push({ s: q.s, q: q.q, ok: true, a: q.a }); }
+  else { wrongs++; res.push({ s: q.s, q: q.q, ok: false, a: q.a }); }
+  showFB(ok, q.a, q.e);
+  document.getElementById('sc').textContent = score;
+  document.getElementById('wr').textContent = wrongs;
+  const nb = document.getElementById('nav-btn');
+  nb.textContent = cur < qs.length - 1 ? 'Następne pytanie →' : 'Zobacz wyniki →';
+  nb.className = 'btn-next';
+  nb.onclick = nxt;
+}
+
+function showFB(ok, ans, exp) {
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback show ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = ok
+    ? '✓ Poprawnie! ' + exp
+    : '✗ Błąd. Poprawna odpowiedź: <strong>' + ans + '</strong>. ' + exp;
+}
+
+function nxt() { cur++; render(); }
+
+function showResults() {
+  showScreen('results');
+  const pct = Math.round(score / qs.length * 100);
+  let grade, cls, trophy;
+  if (pct >= 90) { grade = '5 — Celujący'; cls = 'grade-5'; trophy = '🏆'; }
+  else if (pct >= 80) { grade = '4+ — Bardzo dobry'; cls = 'grade-4'; trophy = '🥈'; }
+  else if (pct >= 70) { grade = '4 — Dobry'; cls = 'grade-4'; trophy = '🎯'; }
+  else if (pct >= 60) { grade = '3 — Dostateczny'; cls = 'grade-3'; trophy = '📚'; }
+  else { grade = '2 — Niedostateczny'; cls = 'grade-2'; trophy = '💪'; }
+
+  document.getElementById('trophy').textContent = trophy;
+  document.getElementById('res-score').textContent = score + '/' + qs.length;
+  document.getElementById('res-pct').textContent = pct + '% poprawnych';
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-grade').className = 'res-grade ' + cls;
+
+  const best = parseInt(localStorage.getItem('best_score') || '0');
+  const badge = document.getElementById('best-badge');
+  if (score > best) {
+    localStorage.setItem('best_score', score);
+    badge.style.display = 'inline-block';
+    document.getElementById('best-score').textContent = score + '/60';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  const sects = {};
+  res.forEach(r => { if (!sects[r.s]) sects[r.s] = []; sects[r.s].push(r); });
+  let html = '';
+  Object.entries(sects).forEach(([s, arr]) => {
+    const sc = arr.filter(r => r.ok).length;
+    html += `<div class="sect-title"><span>${s}</span><span>${sc}/${arr.length}</span></div>`;
+    arr.forEach(r => {
+      const q = r.q.length > 48 ? r.q.slice(0, 48) + '…' : r.q;
+      const a = r.a.length > 28 ? r.a.slice(0, 28) + '…' : r.a;
+      html += `<div class="res-row"><span class="res-q">${q}</span><span class="res-a ${r.ok ? 'ok' : 'bad'}">${r.ok ? '✓' : '✗'} ${a}</span></div>`;
+    });
+  });
+  document.getElementById('sect-results').innerHTML = html;
+}
+
+// load best score on home
+window.addEventListener('load', () => {
+  const best = localStorage.getItem('best_score');
+  if (best) document.getElementById('best-score').textContent = best + '/60';
+});
+
+// PWA install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => {
+    if (!localStorage.getItem('install_dismissed')) {
+      document.getElementById('install-banner').classList.add('show');
+    }
+  }, 2000);
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('install-banner').classList.remove('show');
+    });
+  }
+}
+
+function dismissInstall() {
+  document.getElementById('install-banner').classList.remove('show');
+  localStorage.setItem('install_dismissed', '1');
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+*/</script>
+<script src="app.js"></script>
+</body>
+</html>
