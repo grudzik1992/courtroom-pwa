@@ -42,7 +42,7 @@
   { s: 'Idiomy i legalese', en: 'in cold blood', pl: 'z zimną krwią' },
   { s: 'Idiomy i legalese', en: 'wet behind the ears', pl: 'mieć mleko pod nosem' },
   { s: 'Idiomy i legalese', en: 'beyond a shadow of a doubt', pl: 'ponad wszelką wątpliwość' },
-  { s: 'Idiomy i legalese', en: 'to pull the wool over someone''s eyes', pl: 'mydlić komuś oczy' },
+  { s: 'Idiomy i legalese', en: 'to pull the wool over someone\'s eyes', pl: 'mydlić komuś oczy' },
   { s: 'Idiomy i legalese', en: 'to throw the book at someone', pl: 'zasądzić najwyższy wymiar kary' },
   { s: 'Idiomy i legalese', en: 'the long arm of the law', pl: 'długie ramię prawa' },
   { s: 'Idiomy i legalese', en: 'quid pro quo', pl: 'coś za coś' },
@@ -57,7 +57,7 @@
 ].map((item, index) => ({ ...item, id: `v${index + 1}` }));
 
 const FILL_ITEMS = [
-  { s: 'Luki', q: 'Uzupełnij: She pulled the ___ over everyone''s eyes.', a: 'wool', e: 'Idiom: pull the wool over someone''s eyes.' },
+  { s: 'Luki', q: 'Uzupełnij: She pulled the ___ over everyone\'s eyes.', a: 'wool', e: 'Idiom: pull the wool over someone\'s eyes.' },
   { s: 'Luki', q: 'Uzupełnij: No one can escape the long ___ of the law.', a: 'arm', e: 'Idiom: the long arm of the law.' },
   { s: 'Luki', q: 'Uzupełnij: They really threw the ___ at him.', a: 'book', e: 'Idiom: throw the book at someone.' },
   { s: 'Luki', q: 'Uzupełnij: Four inmates broke ___ of prison yesterday.', a: 'out', e: 'Phrasal verb: break out of prison.' },
