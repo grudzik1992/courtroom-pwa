@@ -1,4 +1,4 @@
-const CACHE = 'courtroom-quiz-v2';
+const CACHE = 'courtroom-quiz-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -28,6 +28,27 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const requestUrl = new URL(e.request.url);
+  const isAppShell = requestUrl.origin === location.origin && (
+    requestUrl.pathname.endsWith('/index.html') ||
+    requestUrl.pathname.endsWith('/app.js') ||
+    requestUrl.pathname.endsWith('/sw.js') ||
+    requestUrl.pathname === '/'
+  );
+
+  if (isAppShell) {
+    e.respondWith(
+      fetch(e.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
