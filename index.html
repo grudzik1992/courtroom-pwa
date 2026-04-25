@@ -503,28 +503,12 @@
 <div class="screen active" id="home">
   <div class="home-wrap">
     <div class="home-gavel">⚖️</div>
-    <div class="home-title">Courtroom<br>Drill</div>
-    <div class="home-sub">Słówka, zdania, ABCD, podpowiedzi i automatyczne powtórki<br>pod kolokwium z materiałów PDF</div>
+    <div class="home-title">Courtroom<br>Słówka</div>
+    <div class="home-sub">Szybka powtórka pod quiz: tłumaczenia EN/PL, PL/EN i uzupełnianie luk<br>z naciskiem na ABCD</div>
     <div class="home-stats">
       <div class="hstat"><strong id="total-items">0</strong>kart</div>
       <div class="hstat"><strong id="best-score">—</strong>rekord</div>
-      <div class="hstat"><strong id="due-count">0</strong>powtórek</div>
-    </div>
-    <div class="control-card">
-      <div class="control-label">Preset</div>
-      <div class="chip-row">
-        <button class="chip sel" data-group="preset" data-value="exam" onclick="setSetting(this)">Egzamin</button>
-        <button class="chip" data-group="preset" data-value="learn" onclick="setSetting(this)">Nauka</button>
-        <button class="chip" data-group="preset" data-value="review" onclick="setSetting(this)">Powtórki</button>
-      </div>
-    </div>
-    <div class="control-card">
-      <div class="control-label">Zakres</div>
-      <div class="chip-row">
-        <button class="chip sel" data-group="content" data-value="mix" onclick="setSetting(this)">Mix</button>
-        <button class="chip" data-group="content" data-value="words" onclick="setSetting(this)">Słowa</button>
-        <button class="chip" data-group="content" data-value="sentences" onclick="setSetting(this)">Zdania</button>
-      </div>
+      <div class="hstat"><strong id="mode-view">ABCD</strong>tryb</div>
     </div>
     <div class="control-card">
       <div class="control-label">Kierunek tłumaczeń</div>
@@ -535,26 +519,18 @@
       </div>
     </div>
     <div class="control-card">
-      <div class="control-label">Forma odpowiedzi</div>
+      <div class="control-label">Typ ćwiczeń</div>
       <div class="chip-row">
-        <button class="chip sel" data-group="format" data-value="mix" onclick="setSetting(this)">Mix</button>
-        <button class="chip" data-group="format" data-value="mc" onclick="setSetting(this)">Więcej ABCD</button>
-        <button class="chip" data-group="format" data-value="typed" onclick="setSetting(this)">Wpisywanie</button>
-      </div>
-    </div>
-    <div class="control-card">
-      <div class="control-label">Rotacja</div>
-      <div class="chip-row">
-        <button class="chip sel" data-group="order" data-value="random" onclick="setSetting(this)">Losowo</button>
-        <button class="chip" data-group="order" data-value="section" onclick="setSetting(this)">Sekcjami</button>
-        <button class="chip" data-group="order" data-value="hard" onclick="setSetting(this)">Trudne najpierw</button>
+        <button class="chip sel" data-group="exercise" data-value="mc" onclick="setSetting(this)">ABCD</button>
+        <button class="chip" data-group="exercise" data-value="fill" onclick="setSetting(this)">Luki</button>
+        <button class="chip" data-group="exercise" data-value="mix" onclick="setSetting(this)">ABCD + luki</button>
       </div>
     </div>
     <div class="control-card">
       <div class="control-label">Długość sesji</div>
       <div class="chip-row">
-        <button class="chip" data-group="limit" data-value="15" onclick="setSetting(this)">15</button>
-        <button class="chip sel" data-group="limit" data-value="30" onclick="setSetting(this)">30</button>
+        <button class="chip" data-group="limit" data-value="20" onclick="setSetting(this)">20</button>
+        <button class="chip sel" data-group="limit" data-value="40" onclick="setSetting(this)">40</button>
         <button class="chip" data-group="limit" data-value="all" onclick="setSetting(this)">Całość</button>
       </div>
     </div>
@@ -565,7 +541,7 @@
         <a class="material-link" href="RM_B2P_PC_3C_LanguageFocus1.pdf" target="_blank" rel="noopener">Language Focus 1<span>Dodatkowe ćwiczenia z even / hardly</span></a>
       </div>
     </div>
-    <div class="home-note" id="home-note">Błędne pytania wracają po kilku kartach, a tryb powtórek zbiera zaległe hasła z historii.</div>
+    <div class="home-note" id="home-note">Tryb domyślny to ABCD, a luki służą do szybkiego domknięcia najważniejszych fraz.</div>
     <button class="btn-start" id="start-btn" onclick="startQuiz()">Rozpocznij sesję →</button>
   </div>
 </div>
